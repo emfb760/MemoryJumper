@@ -1,9 +1,16 @@
 Input = function() {
+	// Handles key bindings for this input object; used to store keyCode and action bound to that key
 	this.key_bindings = new Array();
+	
+	// Keeps track of key states for the last two frame updates 
 	this.key_presses = new Array();
+	
+	// Function to add key-binding to input
 	this.addKeyBinding = function(key, actn) {
-		this.key_bindings.push( { key_code: key, action: actn} );
+		this.key_bindings.push( { key_code: key, action: actn } );
 	};
+	
+	// Call this function at the beginning of the main update function; keeps track of key states
 	this.update = function(e) {
 		for( var i = 0; i < this.key_bindings.length; ++i ) {
 			this.key_presses[ this.key_bindings[i].key_code ].last_frame = this.key_presses[ this.key_bindings[i].key_code ].this_frame;
@@ -14,8 +21,9 @@ Input = function() {
 				this.key_presses[ this.key_bindings[i].key_code ].this_frame = false;
 			}
 		}
-		//document.getElementById("hello").innerHTML = String(this.key_presses[65].last_frame)+" "+String(this.key_presses[65].this_frame)+",  "+String(this.key_presses[68].last_frame)+" "+String(this.key_presses[68].this_frame);
 	};
+	
+	// Returns true if the key bound to the requested action was just pressed
 	this.keyPressed = function(actn) {
 		for( var i = 0; i < this.key_bindings.length; ++i ) {
 			if( actn == this.key_bindings[i].action ) {
@@ -24,6 +32,8 @@ Input = function() {
 		}
 		return false;
 	};
+	
+	// Returns true if the key bound to the requested action was just released
 	this.keyReleased = function(actn) {
 		for( var i = 0; i < this.key_bindings.length; ++i ) {
 			if( actn == this.key_bindings[i].action ) {
@@ -32,7 +42,9 @@ Input = function() {
 		}
 		return false;
 	};
-	this.keyDown = function(actn) {
+	
+	// Returns true if the key bound to the requested action has been down for at least two updates
+	this.keyLongDown = function(actn) {
 		for( var i = 0; i < this.key_bindings.length; ++i ) {
 			if( actn == this.key_bindings[i].action ) {
 				return (this.key_presses[ this.key_bindings[i].key_code ].last_frame == true) && (this.key_presses[ this.key_bindings[i].key_code ].first_frame == true);
@@ -40,7 +52,9 @@ Input = function() {
 		}
 		return false;
 	};
-	this.keyUp = function(actn) {
+	
+	// Returns true if the key bound to the requested action has been up for at least two updates
+	this.keyLongUp = function(actn) {
 		for( var i = 0; i < this.key_bindings.length; ++i ) {
 			if( actn == this.key_bindings[i].action ) {
 				return (this.key_presses[ this.key_bindings[i].key_code ].last_frame == false) && (this.key_presses[ this.key_bindings[i].key_code ].first_frame == false);
@@ -48,11 +62,35 @@ Input = function() {
 		}
 		return false;
 	};
+	
+	// Returns true if the key bound to the requested action is down on this frame
+	this.keyDown = function(actn) {
+		for( var i = 0; i < this.key_bindings.length; ++i ) {
+			if( actn == this.key_bindings[i].action ) {
+				return (this.key_presses[ this.key_bindings[i].key_code ].first_frame == true);
+			}
+		}
+		return false;
+	};
+	
+	// Returns true if the key bound to the requested action is up on this frame
+	this.keyDown = function(actn) {
+		for( var i = 0; i < this.key_bindings.length; ++i ) {
+			if( actn == this.key_bindings[i].action ) {
+				return (this.key_presses[ this.key_bindings[i].key_code ].first_frame == false);
+			}
+		}
+		return false;
+	};
+	
+	// Call this function after binding all the desired keys
 	this.init = function() {
 		for( var i = 0; i < this.key_bindings.length; ++i ) {
 			this.key_presses[ this.key_bindings[i].key_code ] = { last_frame: false, this_frame: false };
 		}
 	};
+	
+	// Creates a string with all the information about the Input object in its current state
 	this.debugString = function() {
 		debug_str = "*****Input Debug String*****\n\n";
 		
@@ -81,12 +119,15 @@ Input = function() {
 	};
 };
 
+// Used to store the state of keyboard keys; necessary for the keyboard event listeners and multiple input objects
 global_keys_pressed = new Array();
 
+// Keyboard keydown event listener
 function InputKeyDownListener(e) {
 	global_keys_pressed[e.keyCode] = true;
 }
 
+// Keyboard keyup event listener
 function InputKeyUpListener(e) {
 	global_keys_pressed[e.keyCode] = false;
 }
