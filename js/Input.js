@@ -94,25 +94,53 @@ Input = function() {
 	this.debugString = function() {
 		debug_str = "*****Input Debug String*****\n\n";
 		
-		debug_str += "KEY BINDINGS: \n";
+		debug_str += "KEY BINDINGS:\n";
 		debug_str += "key code, action\n";
 		for( var i = 0; i < this.key_bindings.length; ++i ) {
 			debug_str += String(this.key_bindings[i].key_code) + ", " + String(this.key_bindings[i].action) + "\n";
 		}
 		debug_str += "\n";
 		
-		debug_str += "KEY PRESSES: \n";
+		debug_str += "KEY PRESSES:\n";
 		debug_str += "action, last frame, this frame\n";
 		for( var i = 0; i < this.key_bindings.length; ++i ) {
 			debug_str += String(this.key_bindings[i].action) + ", " + String(this.key_presses[ this.key_bindings[i].key_code ].last_frame) + ", " + String(this.key_presses[ this.key_bindings[i].key_code ].this_frame) + "\n";
 		}
 		debug_str += "\n";
 		
-		debug_str += "GLOBAL KEYS PRESSED: \n";
+		debug_str += "GLOBAL KEYS PRESSED:\n";
 		debug_str += "keycode, status\n";
 		for( var i = 0; i < global_keys_pressed.length; ++i ) {
 			if( typeof(global_keys_pressed[i]) != 'undefined' ) {
 				debug_str += String(i) + ", " + String(global_keys_pressed[i]) + "\n";
+			}
+		}
+		return debug_str;
+	};
+	
+	// Creates an HTML-formatted string with all the information about the Input object in its current state
+	this.debugHTML = function() {
+		debug_str = "*****Input Debug String*****<br/><br/>";
+		
+		debug_str += "KEY BINDINGS:<br/>";
+		debug_str += "key code, action<br/>";
+		for( var i = 0; i < this.key_bindings.length; ++i ) {
+			debug_str += String(this.key_bindings[i].key_code) + ", " + String(this.key_bindings[i].action) + "<br/>";
+		}
+		debug_str += "<br/>";
+		
+		debug_str += "KEY PRESSES:<br/>";
+		debug_str += "action, last frame, this frame<br/>";
+		for( var i = 0; i < this.key_bindings.length; ++i ) {
+			debug_str += String(this.key_bindings[i].action) + ", " + String(this.key_presses[ this.key_bindings[i].key_code ].last_frame) + ", " + String(this.key_presses[ this.key_bindings[i].key_code ].this_frame) + "<br/>";
+		}
+		debug_str += "<br/>";
+		
+		debug_str += "GLOBAL KEYS PRESSED:<br/>";
+		debug_str += "keycode, status<br/>";
+		for( var i = 0; i < global_keys_pressed.length; ++i ) {
+			if( typeof(global_keys_pressed[i]) != 'undefined' ) {
+				debug_str += String(i) + ", " + String(global_keys_pressed[i]) + "<br/>";
 			}
 		}
 		return debug_str;
