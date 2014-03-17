@@ -76,13 +76,11 @@ Input = function() {
 };
 
 global_keys_pressed = new Array();
-window.addEventListener('keydown', keyDownListener, false);
-window.addEventListener('keyup', keyUpListener, false);
 
-function keyDownListener(e) {
+function InputkeyDownListener(e) {
 	global_keys_pressed[e.keyCode] = true;
 }
 
-function keyUpListener(e) {
+function InputkeyUpListener(e) {
 	global_keys_pressed[e.keyCode] = false;
 }
