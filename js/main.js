@@ -24,7 +24,12 @@ function init() {
 	// Set up the keybindings to be used in player 1 canvas and then initialize the input controller
 	player1_canvas.addKeyBinding(KEYCODE.A,"left");
 	player1_canvas.addKeyBinding(KEYCODE.D,"right");
+	player1_canvas.addKeyBinding(KEYCODE.W,"up");
+	player1_canvas.addKeyBinding(KEYCODE.S,"down");
 	player1_canvas.startInputController();
+	
+	// Set up player in player 1 canvas
+	player1_canvas.initializePlayer(100,100,25,25,"#ff0000");
 
 }
 
@@ -36,19 +41,19 @@ function update() {
 	
 	
 	// Call draw function and set update() to be called on next frame
-	draw(player1_canvas.context);
+	draw();
     requestAnimFrame(function() {
         update();
     });
 }
 
-temp = 0;
+temp = 60*5;
 tempDelay = 60*5;
 
-function draw(context) {
+function draw() {
 	player1_canvas.draw();
 
-	if( temp > tempDelay ) {
+	if( temp >= tempDelay ) {
 		document.getElementById("hello").innerHTML = player1_canvas.debugHTML();
 		//alert(player1_canvas.debugString());
 		temp = 0;

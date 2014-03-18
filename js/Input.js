@@ -24,60 +24,60 @@ Input = function() {
 	};
 	
 	// Returns true if the key bound to the requested action was just pressed
-	this.keyPressed = function(actn) {
+	this.isKeyPressed = function(actn) {
 		for( var i = 0; i < this.key_bindings.length; ++i ) {
 			if( actn == this.key_bindings[i].action ) {
-				return (this.key_presses[ this.key_bindings[i].key_code ].last_frame == false) && (this.key_presses[ this.key_bindings[i].key_code ].first_frame == true);
+				return (this.key_presses[ this.key_bindings[i].key_code ].last_frame == false) && (this.key_presses[ this.key_bindings[i].key_code ].this_frame == true);
 			}
 		}
 		return false;
 	};
 	
 	// Returns true if the key bound to the requested action was just released
-	this.keyReleased = function(actn) {
+	this.isKeyReleased = function(actn) {
 		for( var i = 0; i < this.key_bindings.length; ++i ) {
 			if( actn == this.key_bindings[i].action ) {
-				return (this.key_presses[ this.key_bindings[i].key_code ].last_frame == true) && (this.key_presses[ this.key_bindings[i].key_code ].first_frame == false);
+				return (this.key_presses[ this.key_bindings[i].key_code ].last_frame == true) && (this.key_presses[ this.key_bindings[i].key_code ].this_frame == false);
 			}
 		}
 		return false;
 	};
 	
 	// Returns true if the key bound to the requested action has been down for at least two updates
-	this.keyLongDown = function(actn) {
+	this.isKeyLongDown = function(actn) {
 		for( var i = 0; i < this.key_bindings.length; ++i ) {
 			if( actn == this.key_bindings[i].action ) {
-				return (this.key_presses[ this.key_bindings[i].key_code ].last_frame == true) && (this.key_presses[ this.key_bindings[i].key_code ].first_frame == true);
+				return (this.key_presses[ this.key_bindings[i].key_code ].last_frame == true) && (this.key_presses[ this.key_bindings[i].key_code ].this_frame == true);
 			}
 		}
 		return false;
 	};
 	
 	// Returns true if the key bound to the requested action has been up for at least two updates
-	this.keyLongUp = function(actn) {
+	this.isKeyLongUp = function(actn) {
 		for( var i = 0; i < this.key_bindings.length; ++i ) {
 			if( actn == this.key_bindings[i].action ) {
-				return (this.key_presses[ this.key_bindings[i].key_code ].last_frame == false) && (this.key_presses[ this.key_bindings[i].key_code ].first_frame == false);
+				return (this.key_presses[ this.key_bindings[i].key_code ].last_frame == false) && (this.key_presses[ this.key_bindings[i].key_code ].this_frame == false);
 			}
 		}
 		return false;
 	};
 	
 	// Returns true if the key bound to the requested action is down on this frame
-	this.keyDown = function(actn) {
+	this.isKeyDown = function(actn) {
 		for( var i = 0; i < this.key_bindings.length; ++i ) {
 			if( actn == this.key_bindings[i].action ) {
-				return (this.key_presses[ this.key_bindings[i].key_code ].first_frame == true);
+				return (this.key_presses[ this.key_bindings[i].key_code ].this_frame == true);
 			}
 		}
 		return false;
 	};
 	
 	// Returns true if the key bound to the requested action is up on this frame
-	this.keyDown = function(actn) {
+	this.isKeyUp = function(actn) {
 		for( var i = 0; i < this.key_bindings.length; ++i ) {
 			if( actn == this.key_bindings[i].action ) {
-				return (this.key_presses[ this.key_bindings[i].key_code ].first_frame == false);
+				return (this.key_presses[ this.key_bindings[i].key_code ].this_frame == false);
 			}
 		}
 		return false;
