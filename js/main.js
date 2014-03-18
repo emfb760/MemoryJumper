@@ -11,36 +11,32 @@ window.requestAnimFrame = (function(callback) {
 })();
 
 // Create game objects globally so that they can be access by any function
-input = new Input();
+player1_canvas = new Canvas();
 
 function init() {
 	// Activate the keyboard event listeners
 	window.addEventListener("keydown", InputKeyDownListener, false);
 	window.addEventListener("keyup", InputKeyUpListener, false);
 	
-	// Set up the keybindings to be used by input object(s)
-	input.addKeyBinding(KEYCODE.A,"left");
-	input.addKeyBinding(KEYCODE.D,"right");
+	// Initialize player 1 canvas
+	player1_canvas.init("myCanvas");
 	
-	// Initialize input object(s)
-	input.init();
+	// Set up the keybindings to be used in player 1 canvas and then initialize the input controller
+	player1_canvas.addKeyBinding(KEYCODE.A,"left");
+	player1_canvas.addKeyBinding(KEYCODE.D,"right");
+	player1_canvas.startInputController();
+
 }
 
 function update() {
-	// Get canvas and context information to be used to update the next frame
-	canvas = document.getElementById("myCanvas");
-	context = canvas.getContext("2d");
-	context.clearRect(0, 0, canvas.width, canvas.height);
-	
-	// Update input state
-	input.update();
-	
+	// update canvas
+	player1_canvas.update();
 	
 	// Other objects to be updated go here.................
 	
 	
 	// Call draw function and set update() to be called on next frame
-	draw(context);
+	draw(player1_canvas.context);
     requestAnimFrame(function() {
         update();
     });
@@ -50,9 +46,11 @@ temp = 0;
 tempDelay = 60*5;
 
 function draw(context) {
+	player1_canvas.draw();
+
 	if( temp > tempDelay ) {
-		document.getElementById("hello").innerHTML = input.debugHTML();
-		//alert(input.debugString());
+		document.getElementById("hello").innerHTML = player1_canvas.debugHTML();
+		//alert(player1_canvas.debugString());
 		temp = 0;
 	}
 	else {
