@@ -43,6 +43,7 @@ Player = function() {
 		context.fillRect(this.x, this.y, this.width, this.height);
 	};
 	
+	// Creates a string with all the information about the Player object in its current state
 	this.debugString = function() {
 		debug_str = "*****Player Debug String*****\n\n";
 		
@@ -54,6 +55,7 @@ Player = function() {
 		return debug_str;
 	};
 	
+	// Creates an HTML-formatted string with all the information about the Player object in its current state
 	this.debugHTML = function() {
 		debug_str = "*****Player Debug String*****<br/><br/>";
 		

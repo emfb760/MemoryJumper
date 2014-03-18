@@ -58,6 +58,7 @@ Canvas = function(canvasID) {
 	
 	this.collision = function() {
 	
+		// Check if the new player's x-position will cause the player to move off screen
 		if( this.player.x_new < 0 ) {	// Collision with left wall
 			this.player.x_new = 0;
 		}
@@ -65,6 +66,7 @@ Canvas = function(canvasID) {
 			this.player.x_new = this.width-this.player.width;
 		}
 		
+		// Check if the new player's y-position will cause the player to move off screen
 		if( this.player.y_new < 0 ) {	// Collision with ceiling
 			this.player.y_new = 0;
 		}
@@ -77,6 +79,7 @@ Canvas = function(canvasID) {
 		this.player.y = this.player.y_new;
 	};
 	
+	// Creates a string with all the information about the Canvas object in its current state
 	this.debugString = function() {
 		debug_str = "*****Canvas Debug String*****\n\n";
 		
@@ -91,6 +94,7 @@ Canvas = function(canvasID) {
 		return debug_str;
 	};
 	
+	// Creates an HTML-formatted string with all the information about the Canvas object in its current state
 	this.debugHTML = function() {
 		debug_str = "*****Canvas Debug String*****<br/><br/>";
 		
