@@ -72,6 +72,8 @@ Canvas = function(canvasID) {
 		}
 		else if( this.player.y_new > this.height-this.player.height ) {	// Collision with the ground
 			this.player.y_new = this.height-this.player.height;
+			this.player.is_jumping = false;
+			this.player.is_falling = false;
 		}
 		
 		// Set the player's position to the new position

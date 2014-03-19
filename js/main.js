@@ -26,6 +26,7 @@ function init() {
 	player1_canvas.addKeyBinding(KEYCODE.D,"right");
 	player1_canvas.addKeyBinding(KEYCODE.W,"up");
 	player1_canvas.addKeyBinding(KEYCODE.S,"down");
+	player1_canvas.addKeyBinding(KEYCODE.SPACE,"jump");
 	player1_canvas.startInputController();
 	
 	// Set up player in player 1 canvas
