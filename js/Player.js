@@ -6,7 +6,12 @@ Player = function() {
 	this.width = 0;					// The width of the player object
 	this.height = 0;				// The height of the player object
 	this.color = "#000000";			// The color of the player object (will be removed later when using an actual sprite image)
-	this.walk_speed = 5;			// The speed the player can move left/right (walking)
+	this.walk_speed = 5;			// The speed the player can move left/right when walking
+	this.top_run_speed = 10;		// The top speed the player can move left/right when running
+	this.is_running = false;		// Flag to keep track if the player is running
+	this.run_speedup_timer = 0;		// The timer used in the running speed-up animation
+	this.run_speedup_delay = 5;		// The delay in which to allow the player to speed up when running
+	this.x_velocity = 5;			// The current x-velocity of the player; Used for walking and running
 	this.is_jumping = false;		// Flag to keep track if the player is jumping
 	this.is_falling = true;			// Flag to keep track if the player is falling
 	this.y_velocity = 0;			// The current y-velocity of the player; Used for jumping and falling velocity
@@ -32,6 +37,8 @@ Player = function() {
 	this.update = function(input) {
 		this.checkInput(input);
 		
+		if( this.is_running ) this.runningAnimation();
+		
 		if( this.is_jumping ) this.jumpingAnimation();
 		
 		if( this.is_falling ) this.fallingAnimation();
@@ -43,14 +50,25 @@ Player = function() {
 	};
 	
 	this.checkInput = function(input) {
-		// Player walks right when the 'right' button is down and the 'left' button isn't
+		// Player can activate running after a long press of the 'run' button and not in the air
+		if( input.isKeyLongDown("run") && !this.is_running && !this.is_jumping && !this.is_falling ) {
+			this.is_running = true;
+			this.run_speedup_timer = 0;
+		}
+		// Player can deactivate running when the 'run' button is released and not in the air
+		else if( input.isKeyUp("run") && !this.is_jumping && !this.is_falling ) {
+			this.is_running = false;
+			this.x_velocity = this.walk_speed;
+		}
+	
+		// Player moves right when the 'right' button is down and the 'left' button isn't
 		if( input.isKeyDown("right") && input.isKeyUp("left") ) {
-			this.x_new = this.x + this.walk_speed;
+			this.x_new = this.x + this.x_velocity;
 		}
 		
-		// Player walks left when the 'left' button is down and the 'right' button isn't
+		// Player moves left when the 'left' button is down and the 'right' button isn't
 		if( input.isKeyDown("left") && input.isKeyUp("right") ) {
-			this.x_new = this.x - this.walk_speed;
+			this.x_new = this.x - this.x_velocity;
 		}
 		
 		/*
@@ -69,6 +87,22 @@ Player = function() {
 		if( input.isKeyPressed("jump") && !this.is_jumping && !this.is_falling ) {
 			this.is_jumping = true;
 			this.y_velocity = this.init_jump_speed;
+		}
+	};
+	
+	this.runningAnimation = function() {
+		if( this.run_speedup_timer >= this.run_speedup_delay ) {
+			this.run_speedup_timer = 0;
+			if( this.x_velocity >= this.top_run_speed ) {
+				this.x_velocity = this.top_run_speed;
+			}
+			else {
+				this.x_velocity++;
+				document.getElementById("hello").innerHTML = this.x_velocity;
+			}
+		}
+		else {
+			this.run_speedup_timer++;
 		}
 	};
 	
