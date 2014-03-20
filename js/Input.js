@@ -5,6 +5,9 @@ Input = function() {
 	// Keeps track of key states for the last two frame updates 
 	this.key_presses = new Array();
 	
+	// Keeps track of keypad states for the last two frame updates
+	this.gamepad_presses = new Array(16);
+	
 	// Function to add key-binding to input
 	this.addKeyBinding = function(key, actn) {
 		this.key_bindings.push( { key_code: key, action: actn } );
@@ -12,6 +15,8 @@ Input = function() {
 	
 	// Call this function at the beginning of the main update function; keeps track of key states
 	this.update = function(e) {
+		this.gamepadUpdate();
+		
 		for( var i = 0; i < this.key_bindings.length; ++i ) {
 			this.key_presses[ this.key_bindings[i].key_code ].last_frame = this.key_presses[ this.key_bindings[i].key_code ].this_frame;
 			if( global_keys_pressed[ this.key_bindings[i].key_code ] ) {
@@ -21,72 +26,169 @@ Input = function() {
 				this.key_presses[ this.key_bindings[i].key_code ].this_frame = false;
 			}
 		}
+
 	};
 	
-	// Returns true if the key bound to the requested action was just pressed
+	// Returns true if a key bound to the requested action was just pressed
 	this.isKeyPressed = function(actn) {
 		for( var i = 0; i < this.key_bindings.length; ++i ) {
 			if( actn == this.key_bindings[i].action ) {
-				return (this.key_presses[ this.key_bindings[i].key_code ].last_frame == false) && (this.key_presses[ this.key_bindings[i].key_code ].this_frame == true);
+				if( this.key_bindings[i].key_code >= KEYCODE.GAMEPAD0 ) {
+					if ( (this.gamepad_presses[ this.key_bindings[i].key_code - KEYCODE.GAMEPAD0 ].last_frame == false) && (this.gamepad_presses[ this.key_bindings[i].key_code - KEYCODE.GAMEPAD0 ].this_frame == true) ) {
+						return true;
+					}
+				}
+				else {
+					if ( (this.key_presses[ this.key_bindings[i].key_code ].last_frame == false) && (this.key_presses[ this.key_bindings[i].key_code ].this_frame == true) ) {
+						return true;
+					}
+				}
 			}
 		}
+		
 		return false;
 	};
 	
-	// Returns true if the key bound to the requested action was just released
+	// Returns true if a key bound to the requested action was just released
 	this.isKeyReleased = function(actn) {
 		for( var i = 0; i < this.key_bindings.length; ++i ) {
 			if( actn == this.key_bindings[i].action ) {
-				return (this.key_presses[ this.key_bindings[i].key_code ].last_frame == true) && (this.key_presses[ this.key_bindings[i].key_code ].this_frame == false);
+				if( this.key_bindings[i].key_code >= KEYCODE.GAMEPAD0 ) {
+					if ( (this.gamepad_presses[ this.key_bindings[i].key_code - KEYCODE.GAMEPAD0 ].last_frame == true) && (this.gamepad_presses[ this.key_bindings[i].key_code - KEYCODE.GAMEPAD0 ].this_frame == false) ) {
+						return true;
+					}
+				}
+				else {
+					if ( (this.key_presses[ this.key_bindings[i].key_code ].last_frame == true) && (this.key_presses[ this.key_bindings[i].key_code ].this_frame == false) ) {
+						return true;
+					}
+				}
 			}
 		}
 		return false;
 	};
 	
-	// Returns true if the key bound to the requested action has been down for at least two updates
+	// Returns true if a key bound to the requested action has been down for at least two updates
 	this.isKeyLongDown = function(actn) {
 		for( var i = 0; i < this.key_bindings.length; ++i ) {
 			if( actn == this.key_bindings[i].action ) {
-				return (this.key_presses[ this.key_bindings[i].key_code ].last_frame == true) && (this.key_presses[ this.key_bindings[i].key_code ].this_frame == true);
+				if( this.key_bindings[i].key_code >= KEYCODE.GAMEPAD0 ) {
+					if ( (this.gamepad_presses[ this.key_bindings[i].key_code - KEYCODE.GAMEPAD0 ].last_frame == true) && (this.gamepad_presses[ this.key_bindings[i].key_code - KEYCODE.GAMEPAD0 ].this_frame == true) ) {
+						return true;
+					}
+				}
+				else {
+					if ( (this.key_presses[ this.key_bindings[i].key_code ].last_frame == true) && (this.key_presses[ this.key_bindings[i].key_code ].this_frame == true) ) {
+						return true;
+					}
+				}
 			}
 		}
 		return false;
 	};
 	
-	// Returns true if the key bound to the requested action has been up for at least two updates
+	// Returns true if no keys bound to the requested action have been down for at least two updates
 	this.isKeyLongUp = function(actn) {
 		for( var i = 0; i < this.key_bindings.length; ++i ) {
 			if( actn == this.key_bindings[i].action ) {
-				return (this.key_presses[ this.key_bindings[i].key_code ].last_frame == false) && (this.key_presses[ this.key_bindings[i].key_code ].this_frame == false);
+				if( this.key_bindings[i].key_code >= KEYCODE.GAMEPAD0 ) {
+					if ( (this.gamepad_presses[ this.key_bindings[i].key_code - KEYCODE.GAMEPAD0 ].last_frame == true) && (this.gamepad_presses[ this.key_bindings[i].key_code - KEYCODE.GAMEPAD0 ].this_frame == true) ) {
+						return false;
+					}
+				}
+				else {
+					if ( (this.key_presses[ this.key_bindings[i].key_code ].last_frame == true) && (this.key_presses[ this.key_bindings[i].key_code ].this_frame == true) ) {
+						return false;
+					}
+				}
 			}
 		}
-		return false;
+		return true;
 	};
 	
-	// Returns true if the key bound to the requested action is down on this frame
+	// Returns true if a key bound to the requested action is down on this frame
 	this.isKeyDown = function(actn) {
 		for( var i = 0; i < this.key_bindings.length; ++i ) {
 			if( actn == this.key_bindings[i].action ) {
-				return (this.key_presses[ this.key_bindings[i].key_code ].this_frame == true);
+				if( this.key_bindings[i].key_code >= KEYCODE.GAMEPAD0 ) {
+					if ( (this.gamepad_presses[ this.key_bindings[i].key_code - KEYCODE.GAMEPAD0 ].this_frame == true) ) {
+						return true;
+					}
+				}
+				else {
+					if ( (this.key_presses[ this.key_bindings[i].key_code ].this_frame == true) ) {
+						return true;
+					}
+				}
 			}
 		}
 		return false;
 	};
 	
-	// Returns true if the key bound to the requested action is up on this frame
+	// Returns true if no key bound to the requested action is down on this frame
 	this.isKeyUp = function(actn) {
 		for( var i = 0; i < this.key_bindings.length; ++i ) {
 			if( actn == this.key_bindings[i].action ) {
-				return (this.key_presses[ this.key_bindings[i].key_code ].this_frame == false);
+				if( this.key_bindings[i].key_code >= KEYCODE.GAMEPAD0 ) {
+					if ( (this.gamepad_presses[ this.key_bindings[i].key_code - KEYCODE.GAMEPAD0 ].this_frame == true) ) {
+						return false;
+					}
+				}
+				else {
+					if ( (this.key_presses[ this.key_bindings[i].key_code ].this_frame == true) ) {
+						return false;
+					}
+				}
 			}
 		}
-		return false;
+		return true;
+	};
+	
+	// Called during every input update to get gamepad input
+	this.gamepadUpdate = function() {
+
+		var gamepads = new Array();
+		var buttons = new Array(16);
+		
+		for( var i = 0; i < buttons.length; ++i )
+			buttons[i] = false;
+		
+		var gamepadSupportAvailable = !!navigator.webkitGetGamepads || !!navigator.webkitGetGamepads;
+		if( gamepadSupportAvailable ) {
+			var raw_gamepads = (navigator.webkitGetGamepads && navigator.webkitGetGamepads()) || navigator.webkitGamepads;
+        
+			for( var i = 0; i < raw_gamepads.length; ++i ) {
+				if (raw_gamepads[i]) {
+					gamepads.push(raw_gamepads[i]);
+				}
+			}
+		
+			for ( var i = 0; i < gamepads.length; ++i ) {
+				for ( var j = 0; j < (gamepads[i].buttons).length; ++j ) {
+					if( gamepads[i].buttons[j] ) buttons[j] = true;
+				}
+				if( gamepads[i].axes[0] < -0.5 ) buttons[14] = true;
+				if( gamepads[i].axes[0] > 0.5 ) buttons[15] = true;
+				if( gamepads[i].axes[1] < -0.5 ) buttons[12] = true;
+				if( gamepads[i].axes[1] > 0.5 ) buttons[13] = true;
+			}
+			
+		}
+		
+		for( var i = 0; i < buttons.length; ++i ) {
+			this.gamepad_presses[i].last_frame = this.gamepad_presses[i].this_frame;
+			this.gamepad_presses[i].this_frame = buttons[i];
+		}
+
 	};
 	
 	// Call this function after binding all the desired keys
 	this.init = function() {
 		for( var i = 0; i < this.key_bindings.length; ++i ) {
 			this.key_presses[ this.key_bindings[i].key_code ] = { last_frame: false, this_frame: false };
+		}
+		for( var i = 0; i < this.gamepad_presses.length; ++i ) {
+			this.gamepad_presses[i] = { last_frame: false, this_frame: false };
 		}
 	};
 	
@@ -115,6 +217,16 @@ Input = function() {
 				debug_str += String(i) + ", " + String(global_keys_pressed[i]) + "\n";
 			}
 		}
+		debug_str += "\n";
+		
+		debug_str += "GAMEPAD PRESSES:\n";
+		debug_str += "action, last frame, this frame\n";
+		for( var i = 0; i < this.key_bindings.length; ++i ) {
+			if( this.key_bindings[i].key_code >= KEYCODE.GAMEPAD0 ) {
+				debug_str += String(this.key_bindings[i].action) + ", " + String(this.gamepad_presses[ this.key_bindings[i].key_code - KEYCODE.GAMEPAD0 ].last_frame) + ", " + String(this.gamepad_presses[ this.key_bindings[i].key_code - KEYCODE.GAMEPAD0 ].this_frame) + "\n";
+			}
+		}
+		
 		return debug_str;
 	};
 	
@@ -143,6 +255,16 @@ Input = function() {
 				debug_str += String(i) + ", " + String(global_keys_pressed[i]) + "<br/>";
 			}
 		}
+		debug_str += "<br/>";
+		
+		debug_str += "GAMEPAD PRESSES:<br/>";
+		debug_str += "action, last frame, this frame<br/>";
+		for( var i = 0; i < this.key_bindings.length; ++i ) {
+			if( this.key_bindings[i].key_code >= KEYCODE.GAMEPAD0 ) {
+				debug_str += String(this.key_bindings[i].action) + ", " + String(this.gamepad_presses[ this.key_bindings[i].key_code - KEYCODE.GAMEPAD0 ].last_frame) + ", " + String(this.gamepad_presses[ this.key_bindings[i].key_code - KEYCODE.GAMEPAD0 ].this_frame) + "<br/>";
+			}
+		}
+		
 		return debug_str;
 	};
 };

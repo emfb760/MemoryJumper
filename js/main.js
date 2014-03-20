@@ -28,6 +28,10 @@ function init() {
 	player1_canvas.addKeyBinding(KEYCODE.S,"down");
 	player1_canvas.addKeyBinding(KEYCODE.SPACE,"jump");
 	player1_canvas.addKeyBinding(KEYCODE.SHIFT,"run");
+	player1_canvas.addKeyBinding(KEYCODE.GAMEPAD14,"left");
+	player1_canvas.addKeyBinding(KEYCODE.GAMEPAD15,"right");
+	player1_canvas.addKeyBinding(KEYCODE.GAMEPAD0,"jump");
+	player1_canvas.addKeyBinding(KEYCODE.GAMEPAD2,"run");
 	player1_canvas.startInputController();
 	
 	// Set up player in player 1 canvas
