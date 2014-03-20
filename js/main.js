@@ -24,8 +24,8 @@ function init() {
 	// Set up the keybindings to be used in player 1 canvas and then initialize the input controller
 	player1_canvas.addKeyBinding(KEYCODE.A,"left");
 	player1_canvas.addKeyBinding(KEYCODE.D,"right");
-	player1_canvas.addKeyBinding(KEYCODE.W,"up");
-	player1_canvas.addKeyBinding(KEYCODE.S,"down");
+	player1_canvas.addKeyBinding(KEYCODE.Q,"dashLeft");
+	player1_canvas.addKeyBinding(KEYCODE.E,"dashRight");
 	player1_canvas.addKeyBinding(KEYCODE.SPACE,"jump");
 	player1_canvas.addKeyBinding(KEYCODE.SHIFT,"run");
 	player1_canvas.addKeyBinding(KEYCODE.GAMEPAD14,"left");

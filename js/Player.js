@@ -22,6 +22,19 @@ Player = function() {
 	this.glide_timer = 0;			// Timer variable to count the time that has passed while gliding
 	this.glide_delay = 5;			// Duration in which to glide during the jump
 	
+	this.is_dashing = false;		// Flag to keep track if the player is dashing
+	this.DASHDIR = { 				// Enumerated set to specify which direction the dashing is being performed
+		UP: 0,
+		DOWN: 1,
+		LEFT: 2,
+		RIGHT: 3
+		};
+	this.dashing_dir = -1;			// The current dashing direction
+	this.dashing_up_speed = 10;		// The speed of an up dash
+	this.dashing_side_speed = 20;	// The speed of a side dash
+	this.dashing_timer = 0;			// Timer variable to count the time that has passed since dashing
+	this.dashing_up_delay = 50;		// Delay until the next up dash move can be performed
+	this.dashing_side_delay = 5;	// Delay until the next side dash move can be performed
 	
 	this.init = function(x, y, w, h, c) {
 		this.x = typeof(x) !== 'undefined' ? x : 0;
@@ -39,6 +52,8 @@ Player = function() {
 		
 		if( this.is_running ) this.runningAnimation();
 		
+		if( this.is_dashing ) this.dashingAnimation();
+		
 		if( this.is_jumping ) this.jumpingAnimation();
 		
 		if( this.is_falling ) this.fallingAnimation();
@@ -50,11 +65,24 @@ Player = function() {
 	};
 	
 	this.checkInput = function(input) {
-		// Player can activate running after a long press of the 'run' button and not in the air
-		if( input.isKeyLongDown("run") && !this.is_running && !this.is_jumping && !this.is_falling ) {
+		// Player can activate running when moving left/right after a long press of the 'run' button and not in the air
+		if( input.isKeyLongDown("run") && (input.isKeyDown("right") ? input.isKeyUp("left") : input.isKeyDown("left")) && !this.is_running && !this.is_jumping && !this.is_falling ) {
 			this.is_running = true;
 			this.run_speedup_timer = 0;
 		}
+		
+		// Player changed direction so restart running build up
+		else if( this.is_running && ( (input.isKeyDown("right") && input.isKeyDown("left")) || (input.isKeyPressed("right") && input.isKeyReleased("left")) || (input.isKeyPressed("left") && input.isKeyReleased("right")) ) ) {
+			this.is_running = false;
+			this.x_velocity = this.walk_speed;
+		}
+		
+		// Player stopped moving a direction so deactivate running
+		else if( this.is_running && input.isKeyUp("right") && input.isKeyUp("left") ) {
+			this.is_running = false;
+			this.x_velocity = this.walk_speed;
+		}
+		
 		// Player can deactivate running when the 'run' button is released and not in the air
 		else if( input.isKeyUp("run") && !this.is_jumping && !this.is_falling ) {
 			this.is_running = false;
@@ -69,6 +97,18 @@ Player = function() {
 		// Player moves left when the 'left' button is down and the 'right' button isn't
 		if( input.isKeyDown("left") && input.isKeyUp("right") ) {
 			this.x_new = this.x - this.x_velocity;
+		}
+		
+		if( input.isKeyPressed("dashRight") && input.isKeyUp("dashLeft") && !this.is_dashing ) {
+			this.is_dashing = true;
+			this.dashing_dir = this.DASHDIR.RIGHT;
+			this.dashing_timer = 0;
+		}
+		
+		if( input.isKeyPressed("dashLeft") && input.isKeyUp("dashRight") && !this.is_dashing ) {
+			this.is_dashing = true;
+			this.dashing_dir = this.DASHDIR.LEFT;
+			this.dashing_timer = 0;
 		}
 		
 		/*
@@ -88,6 +128,11 @@ Player = function() {
 			this.is_jumping = true;
 			this.y_velocity = this.init_jump_speed;
 		}
+		else if( input.isKeyPressed("jump") && !this.is_dashing ) {
+			this.is_dashing = true;
+			this.dashing_dir = this.DASHDIR.UP;
+			this.dashing_timer = 0;
+		}
 	};
 	
 	this.runningAnimation = function() {
@@ -98,12 +143,53 @@ Player = function() {
 			}
 			else {
 				this.x_velocity++;
-				document.getElementById("hello").innerHTML = this.x_velocity;
 			}
 		}
 		else {
 			this.run_speedup_timer++;
 		}
+	};
+	
+	this.dashingAnimation = function() {
+		switch(this.dashing_dir) {
+			case this.DASHDIR.UP:
+				if( this.dashing_timer == 0 ) {
+					this.y_velocity = -this.dashing_up_speed;
+					this.dashing_timer++;
+				}
+				else {
+					if( this.dashing_timer >= this.dashing_up_delay ) {
+						this.is_dashing = false;
+					}
+					else {
+						this.dashing_timer++;
+					}
+				}
+				break;
+			case this.DASHDIR.DOWN:
+				break;
+			case this.DASHDIR.LEFT:
+				document.getElementById("hello").innerHTML = "hello";
+				if( this.dashing_timer >= this.dashing_side_delay ) {
+					this.is_dashing = false;
+				}
+				else {
+					this.dashing_timer++;
+					this.x_new = this.x - this.dashing_side_speed;
+				}
+				break;
+			case this.DASHDIR.RIGHT:
+				if( this.dashing_timer >= this.dashing_side_delay ) {
+					this.is_dashing = false;
+				}
+				else {
+					this.dashing_timer++;
+					this.x_new = this.x + this.dashing_side_speed;
+				}
+				break;
+			default:
+				break;
+		};
 	};
 	
 	this.jumpingAnimation = function() {
