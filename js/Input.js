@@ -92,12 +92,12 @@ Input = function() {
 		for( var i = 0; i < this.key_bindings.length; ++i ) {
 			if( actn == this.key_bindings[i].action ) {
 				if( this.key_bindings[i].key_code >= KEYCODE.GAMEPAD0 ) {
-					if ( (this.gamepad_presses[ this.key_bindings[i].key_code - KEYCODE.GAMEPAD0 ].last_frame == true) && (this.gamepad_presses[ this.key_bindings[i].key_code - KEYCODE.GAMEPAD0 ].this_frame == true) ) {
+					if ( (this.gamepad_presses[ this.key_bindings[i].key_code - KEYCODE.GAMEPAD0 ].last_frame == true) || (this.gamepad_presses[ this.key_bindings[i].key_code - KEYCODE.GAMEPAD0 ].this_frame == true) ) {
 						return false;
 					}
 				}
 				else {
-					if ( (this.key_presses[ this.key_bindings[i].key_code ].last_frame == true) && (this.key_presses[ this.key_bindings[i].key_code ].this_frame == true) ) {
+					if ( (this.key_presses[ this.key_bindings[i].key_code ].last_frame == true) || (this.key_presses[ this.key_bindings[i].key_code ].this_frame == true) ) {
 						return false;
 					}
 				}
