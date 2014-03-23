@@ -61,9 +61,11 @@ Canvas = function(canvasID) {
 		// Check if the new player's x-position will cause the player to move off screen
 		if( this.player.x_new < 0 ) {	// Collision with left wall
 			this.player.x_new = 0;
+			this.player.x_velocity = 0;
 		}
 		else if( this.player.x_new > this.width-this.player.width ) {	// Collision with right wall
 			this.player.x_new = this.width-this.player.width;
+			this.player.x_velocity = 0;
 		}
 		
 		// Check if the new player's y-position will cause the player to move off screen

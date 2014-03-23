@@ -6,13 +6,16 @@ Player = function() {
 	this.width = 0;					// The width of the player object
 	this.height = 0;				// The height of the player object
 	this.color = "#000000";			// The color of the player object (will be removed later when using an actual sprite image)
-	this.walk_speed = 5;			// The speed the player can move left/right when walking
+	this.top_walk_speed = 5;		// The speed the player can move left/right when walking
 	this.top_run_speed = 10;		// The top speed the player can move left/right when running
+	this.is_moving_left = false;	// Flag to keep track if the player is moving left
+	this.is_moving_right = false;	// Flag to keep track if the player is moving right
 	this.is_running = false;		// Flag to keep track if the player is running
-	this.run_speedup_timer = 0;		// The timer used in the running speed-up animation
-	this.run_speedup_delay = 5;		// The delay in which to allow the player to speed up when running
-	this.x_velocity = 5;			// The current x-velocity of the player; Used for walking and running
+	this.move_speedup_timer = 0;	// The timer used in the walking/running speed-up animation
+	this.move_speedup_delay = 2;	// The delay in which to allow the player to speed up when walking/running
+	this.x_velocity = 0;			// The current x-velocity of the player; Used for walking and running
 	this.is_jumping = false;		// Flag to keep track if the player is jumping
+	this.momentum_slowdown = 2;		// Slowdown value from momentum
 	this.is_falling = true;			// Flag to keep track if the player is falling
 	this.y_velocity = 0;			// The current y-velocity of the player; Used for jumping and falling velocity
 	this.init_jump_speed = -12;		// Initial jump speed; When the player jumps the y-velocity is set to this value
@@ -50,7 +53,8 @@ Player = function() {
 	this.update = function(input) {
 		this.checkInput(input);
 		
-		if( this.is_running ) this.runningAnimation();
+		this.movingAnimation();
+		document.getElementById("hello").innerHTML = this.x_velocity;
 		
 		if( this.is_dashing ) this.dashingAnimation();
 		
@@ -65,79 +69,90 @@ Player = function() {
 	};
 	
 	this.checkInput = function(input) {
+	
+		// **************** RUNNING INPUT *******************
+		
 		// Player can activate running when moving left/right after a long press of the 'run' button and not in the air
 		if( input.isKeyLongDown("run") && (input.isKeyDown("right") ? input.isKeyUp("left") : input.isKeyDown("left")) && !this.is_running && !this.is_jumping && !this.is_falling ) {
 			this.is_running = true;
-			this.run_speedup_timer = 0;
-		}
-		
-		// Player changed direction so restart running build up
-		else if( this.is_running && ( (input.isKeyDown("right") && input.isKeyDown("left")) || (input.isKeyPressed("right") && input.isKeyReleased("left")) || (input.isKeyPressed("left") && input.isKeyReleased("right")) ) ) {
-			this.is_running = false;
-			this.x_velocity = this.walk_speed;
-		}
-		
-		// Player stopped moving a direction so deactivate running
-		else if( this.is_running && input.isKeyUp("right") && input.isKeyUp("left") ) {
-			this.is_running = false;
-			this.x_velocity = this.walk_speed;
+			this.move_speedup_timer = 0;
 		}
 		
 		// Player can deactivate running when the 'run' button is released and not in the air
 		else if( input.isKeyUp("run") && !this.is_jumping && !this.is_falling ) {
 			this.is_running = false;
-			this.x_velocity = this.walk_speed;
+			//this.x_velocity = this.walk_speed;
 		}
 	
+		// **************************************************
+	
+	
+		// **************** MOVING INPUT ********************
+		
 		// Player moves right when the 'right' button is down and the 'left' button isn't
 		if( input.isKeyDown("right") && input.isKeyUp("left") ) {
-			this.x_new = this.x + this.x_velocity;
+			//this.x_new = this.x + this.x_velocity;
+			this.is_moving_right = true;
+			this.is_moving_left = false;
 		}
 		
 		// Player moves left when the 'left' button is down and the 'right' button isn't
-		if( input.isKeyDown("left") && input.isKeyUp("right") ) {
-			this.x_new = this.x - this.x_velocity;
+		else if( input.isKeyDown("left") && input.isKeyUp("right") ) {
+			//this.x_new = this.x - this.x_velocity;
+			this.is_moving_left = true;
+			this.is_moving_right = false;
 		}
 		
-		if( input.isKeyPressed("dashRight") && input.isKeyUp("dashLeft") && !this.is_dashing ) {
+		// Player is not moving left or right
+		else {
+			this.is_moving_left = false;
+			this.is_moving_right = false;
+		}
+
+		// **************************************************
+	
+	
+		// **************** DASHING INPUT *******************
+		
+		// Player can dash right when 'dashRight' button is pressed and not already dashing left, right, or down
+		if( input.isKeyPressed("dashRight") && input.isKeyUp("dashLeft") && (!this.is_dashing || this.dashing_dir == this.DASHDIR.UP) ) {
 			this.is_dashing = true;
 			this.dashing_dir = this.DASHDIR.RIGHT;
 			this.dashing_timer = 0;
 		}
 		
-		if( input.isKeyPressed("dashLeft") && input.isKeyUp("dashRight") && !this.is_dashing ) {
+		// Player can dash left when 'dashLeft' button is pressed and not already dashing left, right, or down
+		if( input.isKeyPressed("dashLeft") && input.isKeyUp("dashRight") && (!this.is_dashing || this.dashing_dir == this.DASHDIR.UP) ) {
 			this.is_dashing = true;
 			this.dashing_dir = this.DASHDIR.LEFT;
 			this.dashing_timer = 0;
 		}
 		
-		/*
-		// Player walks up when the 'up' button is down and the 'down' button isn't (for debug purposes)
-		if( input.isKeyDown("up") && input.isKeyUp("down") ) {
-			this.y_new = this.y - this.walk_speed;
-		}
-		
-		// Player walks down when the 'down' button is down and the 'up' button isn't (for debug purposes)
-		if( input.isKeyDown("down") && input.isKeyUp("up") ) {
-			this.y_new = this.y + this.walk_speed;
-		}
-		*/
+		// **************************************************
+	
+	
+		// **************** JUMPING INPUT *******************		
 		
 		// Player activates jump if 'jump' button was just pressed and if not already jumping/falling
 		if( input.isKeyPressed("jump") && !this.is_jumping && !this.is_falling ) {
 			this.is_jumping = true;
 			this.y_velocity = this.init_jump_speed;
 		}
+		
+		// Player can activate dash-up (aka double jump) when jumping while in the air and not already performing a dashing move
 		else if( input.isKeyPressed("jump") && !this.is_dashing ) {
 			this.is_dashing = true;
 			this.dashing_dir = this.DASHDIR.UP;
 			this.dashing_timer = 0;
 		}
+		
+		// **************************************************
+	
 	};
 	
 	this.runningAnimation = function() {
-		if( this.run_speedup_timer >= this.run_speedup_delay ) {
-			this.run_speedup_timer = 0;
+		if( this.move_speedup_timer >= this.move_speedup_delay ) {
+			this.move_speedup_timer = 0;
 			if( this.x_velocity >= this.top_run_speed ) {
 				this.x_velocity = this.top_run_speed;
 			}
@@ -146,7 +161,7 @@ Player = function() {
 			}
 		}
 		else {
-			this.run_speedup_timer++;
+			this.move_speedup_timer++;
 		}
 	};
 	
@@ -190,6 +205,70 @@ Player = function() {
 			default:
 				break;
 		};
+	};
+	
+	this.movingAnimation = function() {
+		if( this.is_moving_left ) {
+			if( this.move_speedup_timer >= this.move_speedup_delay ) {
+				this.move_speedup_timer = 0;
+				if( this.is_running && this.x_velocity <= -this.top_run_speed ) {
+					this.x_velocity = -this.top_run_speed;
+				}
+				else if( !this.is_running && this.x_velocity <= -this.top_walk_speed ) {
+					this.x_velocity = -this.top_walk_speed;
+				}
+				else {
+					this.x_velocity--;
+				}
+			}
+			else {
+				this.move_speedup_timer++;
+			}
+		}
+		else if( this.is_moving_right ) {
+			if( this.move_speedup_timer >= this.move_speedup_delay ) {
+				this.move_speedup_timer = 0;
+				if( this.is_running && this.x_velocity >= this.top_run_speed ) {
+					this.x_velocity = this.top_run_speed;
+				}
+				else if( !this.is_running && this.x_velocity >= this.top_walk_speed ) {
+					this.x_velocity = this.top_walk_speed;
+				}
+				else {
+					this.x_velocity++;
+				}
+			}
+			else {
+				this.move_speedup_timer++;
+			}
+		}
+		else {
+			if( this.move_speedup_timer >= this.move_speedup_delay ) {
+				this.move_speedup_timer = 0;
+				if( this.x_velocity < 0 ) {
+					if( this.x_velocity + this.momentum_slowdown > 0 ) {
+						this.x_velocity = 0;
+					}
+					else {
+						this.x_velocity += this.momentum_slowdown;
+					}
+				}
+				else if( this.x_velocity > 0 ) {
+					if( this.x_velocity - this.momentum_slowdown < 0 ) {
+						this.x_velocity = 0;
+					}
+					else {
+						this.x_velocity -= this.momentum_slowdown;
+					}
+				}
+			}
+			else {
+				this.move_speedup_timer++;
+			}
+		}
+		
+		this.x_new = this.x + this.x_velocity;
+		
 	};
 	
 	this.jumpingAnimation = function() {
