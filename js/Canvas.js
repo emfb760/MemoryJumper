@@ -76,7 +76,7 @@ Canvas = function() {
 		else {
 			for( var i = 0; i < 5; ++i ) {
 				p = new Platform();
-				p.init(Math.random()*this.height+100, Math.random()*400+1, Math.random()*100+40, Math.random()*40+20, "#0000ff", this.theme.platform, Math.floor(Math.random()*3), Math.random()*5+1);
+				p.init(Math.floor(Math.random()*300)+100, Math.floor(Math.random()*400)+200, Math.floor(Math.random()*5+1) * 25, Math.floor(Math.random()*2+1) * 25, "#0000ff", this.theme.platform, 'static', Math.random()*5+1);
 				this.platforms.push(p);
 			}
 		}
@@ -106,6 +106,24 @@ Canvas = function() {
 		}
 	};
 	
+	this.isOverlap = function(x, y, p) {
+		if( x < p.x+p.width && x+this.player.width > p.x ) {
+			if( y < p.y+p.height && y+this.player.height > p.y ) {
+				return true;
+			}
+		}
+		
+		return false;
+	};
+	
+	this.onLedge = function(x, p) {
+		return ( x < p.x+p.width && x+this.player.width > p.x );
+	};
+	
+	this.offLedge = function(x, p) {
+		return ( x+this.player.width <= p.x || x >= p.x+p.width );
+	};
+	
 	this.collision = function() {
 	
 		// Check if the new player's x-position will cause the player to move off screen
@@ -126,6 +144,114 @@ Canvas = function() {
 			this.player.y_new = this.height-this.player.height;
 			this.player.is_jumping = false;
 			this.player.is_falling = false;
+			this.player.platform_standing_on = -1;
+		}
+		
+		var dx = this.player.x_new-this.player.x;
+		var dy = this.player.y_new-this.player.y;
+		if( dx == 0 && dy == 0 ) {}
+		else if (Math.abs(dx) >= Math.abs(dy)) {
+			var ddx = this.player.x;
+			var ddy = this.player.y;
+			var x_incr, y_incr;
+			if( dx > 0 ) {
+				x_incr = 1;
+			}
+			else {
+				x_incr = -1;
+			}
+			if( dy == 0 ) {
+				y_incr = 0;
+			}
+			else if( dy > 0 ) {
+				y_incr = Math.abs(dy)/Math.abs(dx);
+			}
+			else {
+				y_incr = -Math.abs(dy)/Math.abs(dx);
+			}
+			for (var i = 0; i < this.platforms.length; ++i) {
+				for (ddx; ddx != this.player.x_new; ddx += x_incr, ddy += y_incr) {
+					if (this.isOverlap(ddx+x_incr, Math.floor(ddy + y_incr ), this.platforms[i]) ) {
+						if( Math.floor(ddy)+this.player.height == this.platforms[i].y && this.onLedge(ddx,this.platforms[i]) ) {			// player landed on top of a platform
+							this.player.x_new = ddx;
+							this.player.y_new = Math.floor(ddy);
+							this.player.is_jumping = false;
+							this.player.is_falling = false;
+							this.player.platform_standing_on = i;
+						}
+						else if( Math.floor(ddy) == this.platforms[i].y+this.platforms[i].height && this.onLedge(ddx,this.platforms[i]) ) {	// player hit the bottom of a platform
+							this.player.x_new = ddx;
+							this.player.y_new = Math.floor(ddy);
+							this.player.is_jumping = false;
+							this.player.is_falling = true;
+							this.player.y_velocity = 0;
+						}
+						else {
+							this.player.x_new = ddx;
+							if( this.player.y_velocity+this.player.crash_velocity_deduction <= 0 ) {
+								this.player.y_velocity += this.player.crash_velocity_deduction;
+							}
+						}
+						break;
+					}
+				}
+			}
+		}
+		else {
+			var ddx = this.player.x;
+			var ddy = this.player.y;
+			var x_incr, y_incr;
+			if( dx == 0 ) {
+				x_incr = 0;
+			}
+			else if( dx > 0 ) {
+				x_incr = Math.abs(dx)/Math.abs(dy);
+			}
+			else {
+				x_incr = -Math.abs(dx)/Math.abs(dy);
+			}
+			if( dy > 0 ) {
+				y_incr = 1;
+			}
+			else {
+				y_incr = -1;
+			}
+			for (var i = 0; i < this.platforms.length; ++i) {
+				for (ddy; ddy != this.player.y_new; ddx += x_incr, ddy += y_incr) {
+					if (this.isOverlap( Math.floor(ddx+x_incr), ddy + y_incr, this.platforms[i]) ) {
+						if( ddy+this.player.height == this.platforms[i].y && this.onLedge(Math.floor(ddx),this.platforms[i]) ) {			// player landed on top of a platform
+							this.player.x_new = Math.floor(ddx);
+							this.player.y_new = ddy;
+							this.player.is_jumping = false;
+							this.player.is_falling = false;
+							this.player.platform_standing_on = i;
+						}
+						else if( ddy == this.platforms[i].y+this.platforms[i].height && this.onLedge(Math.floor(ddx),this.platforms[i]) ) {	// player hit the bottom of a platform
+							this.player.x_new = Math.floor(ddx);
+							this.player.y_new = ddy;
+							this.player.is_jumping = false;
+							this.player.is_falling = true;
+							this.player.y_velocity = 0;
+						}
+						else {
+							this.player.x_new = Math.floor(ddx);
+							if( this.player.y_velocity+this.player.crash_velocity_deduction <= 0 ) {
+								this.player.y_velocity += this.player.crash_velocity_deduction;
+							}
+						}
+						break;
+					}
+				}
+			}
+		}
+		
+		// Check if the player walked off the ledge it was standing on
+		if( dy == 0 && !this.player.is_jumping ) {
+			if( this.player.platform_standing_on >= 0 && this.offLedge(this.player.x_new, this.platforms[this.player.platform_standing_on]) ) {
+				this.player.platform_standing_on = -1;
+				this.player.is_falling = true;
+				this.player.y_velocity = 0;
+			}
 		}
 		
 		// Set the player's position to the new position

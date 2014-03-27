@@ -25,6 +25,7 @@ Player = function() {
 	this.is_gliding = false;		// Flag to allow the player to glide in the air for a small duration when reaching the peak of the jump
 	this.glide_timer = 0;			// Timer variable to count the time that has passed while gliding
 	this.glide_delay = 5;			// Duration in which to glide during the jump
+	this.crash_velocity_deduction = 1;	// When the player hits the side of a platform their upward velocity is decreased by this value
 	
 	this.is_dashing = false;		// Flag to keep track if the player is dashing
 	this.DASHDIR = { 				// Enumerated set to specify which direction the dashing is being performed
@@ -40,6 +41,8 @@ Player = function() {
 	this.dashing_up_delay = 50;		// Delay until the next up dash move can be performed
 	this.dashing_side_delay = 5;	// Delay until the next side dash move can be performed
 	
+	this.platform_standing_on = -1;
+
 	this.init = function(x, y, w, h, c, player_theme) {
 		this.x = typeof(x) !== 'undefined' ? x : 0;
 		this.y = typeof(y) !== 'undefined' ? y : 0;
@@ -56,17 +59,23 @@ Player = function() {
 		this.y_new = this.y;
 	};
 	
+	this.temp = 0;
+	
 	this.update = function(input) {
 		this.checkInput(input);
 		
 		this.movingAnimation();
-		document.getElementById("hello").innerHTML = this.x_velocity;
 		
 		if( this.is_dashing ) this.dashingAnimation();
 		
 		if( this.is_jumping ) this.jumpingAnimation();
 		
 		if( this.is_falling ) this.fallingAnimation();
+		
+		if( this.y_velocity > this.temp ) {
+			this.temp = this.y_velocity;
+			document.getElementById('hello').innerHTML = this.temp;
+		}
 	};
 	
 	this.draw = function(context) {

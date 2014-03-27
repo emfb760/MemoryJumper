@@ -76,8 +76,8 @@ Platform = function() {
 	
 	this.draw = function(context) {
 		if( this.img != null ) {
-			for( var i = 0; i < (this.width/this.height); ++i) {
-				context.drawImage(this.img,(i*this.height) + this.x,this.y,this.height,this.height);
+			for( var i = 0; i < (this.width/25); ++i) {
+				context.drawImage(this.img,(i*25) + this.x,this.y,25,this.height);
 			}
 		}
 		else {
