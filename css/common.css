@@ -82,6 +82,7 @@ td {
 	border: 5px solid #800;
 }
 #container {
+	overflow:hidden;
 	position: absolute;
 	top: 0;
 	left: 0;
@@ -89,14 +90,16 @@ td {
 	right: 0;
 }
 .stage {
-	background: url('http://memoryrunner.tk/themes/minecraft/brickwall_grey.jpg') repeat fixed center; 
-	width: 790px;
-	height: 450px;
+	/*background: url('http://memoryrunner.tk/themes/minecraft/brickwall_grey.jpg') repeat fixed center;*/
+	width: 784px;
+	height: 441px;
+	background-size: auto 100%;
 	display: inline-block;
 	transform-origin: 0 0;
     -webkit-transform-origin: 0 0;
+	border: 3px solid #000;
+	opacity: .9;
 }
-
 .myCanvas {
 	image-rendering: crisp-edges;
     image-rendering: -moz-crisp-edges;

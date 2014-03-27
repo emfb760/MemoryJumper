@@ -6,6 +6,7 @@ Player = function() {
 	this.width = 0;					// The width of the player object
 	this.height = 0;				// The height of the player object
 	this.color = "#000000";			// The color of the player object (will be removed later when using an actual sprite image)
+	this.img;						// Img variable for player
 	this.top_walk_speed = 5;		// The speed the player can move left/right when walking
 	this.top_run_speed = 10;		// The top speed the player can move left/right when running
 	this.is_moving_left = false;	// Flag to keep track if the player is moving left
@@ -39,15 +40,20 @@ Player = function() {
 	this.dashing_up_delay = 50;		// Delay until the next up dash move can be performed
 	this.dashing_side_delay = 5;	// Delay until the next side dash move can be performed
 	
-	this.init = function(x, y, w, h, c) {
+	this.init = function(x, y, w, h, c, player_theme) {
 		this.x = typeof(x) !== 'undefined' ? x : 0;
 		this.y = typeof(y) !== 'undefined' ? y : 0;
 		this.width = typeof(w) !== 'undefined' ? w : 0;
 		this.height = typeof(h) !== 'undefined' ? h : 0;
 		this.color = typeof(c) !== 'undefined' ? c : "#000000";
 		
-		this.x_new = x;
-		this.y_new = y;
+		if( typeof(player_theme) !== 'undefined' ) {
+			this.img = new Image();
+			this.img.src = player_theme;
+		}
+		
+		this.x_new = this.x;
+		this.y_new = this.y;
 	};
 	
 	this.update = function(input) {
@@ -64,8 +70,13 @@ Player = function() {
 	};
 	
 	this.draw = function(context) {
-		context.fillStyle = this.color;
-		context.fillRect(this.x, this.y, this.width, this.height);
+		if( this.img != null ) {
+			context.drawImage(this.img, this.x, this.y, this.width, this.height);
+		}
+		else {
+			context.fillStyle = this.color;
+			context.fillRect(this.x, this.y, this.width, this.height);
+		}
 	};
 	
 	this.checkInput = function(input) {
